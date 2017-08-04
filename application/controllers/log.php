@@ -3,6 +3,7 @@
 class Log extends MY_Controller {
     
   public function __construct() {
+      
     parent::__construct();
     $this->load->model( 'Log_model' );
     
@@ -24,6 +25,7 @@ class Log extends MY_Controller {
   }
   
   public function manage( $page =  0 ){
+
     // Check the login
     $this->is_logged_in();
 

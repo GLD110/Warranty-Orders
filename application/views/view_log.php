@@ -57,7 +57,7 @@ $summary = 'Showing ' . ( $page + 1 ) . ' to ' . ( $page + $sel_page_size > $tot
           <div class="col-md-12 column"  style = "border-bottom:solid 1px #ddd; margin-bottom:4px; padding-bottom: 5px;" >
             <form style="display: inline" class = 'form-inline' id = 'frmSearch' action="<?php echo base_url( $this->config->item('index_page') . '/log') ?>" method = "post" >
               <label>Type</label>&nbsp;:&nbsp;
-              <?PHP echo form_dropdown('sel_type', array( 'ALL' => 'ALL', 'Shopify' => 'Shopify', 'Boxzooka' => 'Boxzooka', 'Webhook' => 'Webhook', 'CronJob' => 'CronJob' ), $sel_type, 'id="sel_type" class="form-control input-group-sm"' ); ?>
+              <?PHP echo form_dropdown('sel_type', array( 'ALL' => 'ALL', 'Webhook' => 'Webhook', 'CronJob' => 'CronJob' ), $sel_type, 'id="sel_type" class="form-control input-group-sm"' ); ?>
               &nbsp;&nbsp;
               <label>Action</label>&nbsp;:&nbsp;
               <input type = 'text' class="form-control input-group-sm" id = 'sel_action' name = 'sel_action' value = "<?PHP echo $sel_action; ?>" style = "width:150px;" >
@@ -115,7 +115,7 @@ $summary = 'Showing ' . ( $page + 1 ) . ' to ' . ( $page + $sel_page_size > $tot
                     </td>
                     <td><?=$row->type ?></td>
                     <td><?=$row->action ?></td>
-                    <td class = 'text-left'><?=strip_tags($row->input) ?></td>
+                    <td class = 'text-left'><?=$row->input ?></td>
                     <td class = "text-left"><?=strip_tags($row->message) ?></td>
                     <td><?=$row->log_date ?></td>
                 </tr>

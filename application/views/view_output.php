@@ -53,7 +53,7 @@ $config['base_url'] = base_url( 'output/manage' );
                     <input type = 'text' class="form-control input-group-sm" id = 'in_password' name = 'user_pwd' value = "<?PHP $user_pwd = (isset($settings )? $settings->user_pwd: ''); echo $user_pwd; ?>" style = "width:200px;" >&nbsp;&nbsp;                  
                     &nbsp;&nbsp;&nbsp; 
                 </div>
-                <div class="col-sm-12" style="padding-bottom: 10px;">
+                <div class="col-sm-12" style="padding-bottom: 10px; display:none;">
                     <div class="form-group">
                         <label>
                             Time

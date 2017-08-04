@@ -113,6 +113,7 @@ $summary = 'Showing ' . ( $page + 1 ) . ' to ' . ( $page + $sel_page_size > $tot
                     <th class = "text-center" ><a href = "javascript:sort('order_id');" >Order ID</a></th>
                     <th class = "text-center" ><a href = "javascript:sort('product_name');" >Product Name</a></th>              
                     <th class = "text-center" ><a href = "javascript:sort('customer_name');" >Customer</a></th>
+                    <th class = "text-center" ><a href = "javascript:sort('email');" >email</a></th>
                     <th class = "text-center" >Total</th>
                     <th class = "text-center" ><a href = "javascript:sort('num_products');" >Products</a></th>
                     <th class = "text-center" ><a href = "javascript:sort('country');" >Country</a></th>
@@ -138,6 +139,7 @@ $summary = 'Showing ' . ( $page + 1 ) . ' to ' . ( $page + $sel_page_size > $tot
                     <td><?=$row->order_id ?></td>
                     <td><?=$row->product_name ?></td>
                     <td><?=$row->customer_name ?></td>
+                    <td><?=$row->email ?></td>
                     <td>$<?=$row->amount ?></td>
                     <td><?=$row->num_products ?></td>
                     <td><?=$row->country ?></td>

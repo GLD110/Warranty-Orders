@@ -82,7 +82,9 @@ class Store extends MY_Controller {
         
         $data[ $settings_item['field'] ] = trim($this->input->post($settings_item['field']));
       }
-              
+        
+      //$data = $this->input->post();    
+        
       if($this->Store_model->add( $data )){
         echo '<div class="alert alert-success">This Store is added successfully</div>';
         exit;

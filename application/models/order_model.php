@@ -50,6 +50,66 @@ class Order_model extends Master_model
     */
     public function getList( $arrCondition )
     {
+        
+        $name_list = $this->getOrderNameList($arrCondition);
+
+        $where = array();
+
+        // Build the where clause
+        
+        $originalDate = $arrCondition['created_at'];
+        $arrCondition['created_at'] = date("Y-m-d", strtotime($originalDate));
+        
+        $where['shop'] = $this->_shop;
+        if( !empty( $arrCondition['customer_name'] ) ) $where["customer_name LIKE '%" . str_replace( "'", "\\'", $arrCondition['customer_name'] ) . "%'"] = '';
+        if( !empty( $arrCondition['order_name'] ) ) $where["order_name LIKE '%" . str_replace( "'", "\\'", $arrCondition['order_name'] ) . "%'"] = '';
+        if( !empty( $arrCondition['created_at'] ) ) $where["created_at LIKE '" . str_replace( "'", "\\'", $arrCondition['created_at'] ) . "%'"] = '';
+        
+        // Select fields
+        $select = !empty( $arrCondition['is_all'] ) ? '*' : "id, order_id, order_name, email, created_at, customer_name, amount, fulfillment_status, num_products, country, product_name, financial_status, sku";
+        $this->db->select( $select );
+        
+        // Sort
+        if( isset( $arrCondition['sort'] ) ) $this->db->order_by( $arrCondition['sort'] );
+        $this->db->order_by( 'created_at', 'DESC' );
+
+        // Limit
+        if( isset( $arrCondition['page_number'] ) )
+        {
+            $page_size = isset( $arrCondition['page_size'] ) ? $arrCondition['page_size'] : $this->config->item('PAGE_SIZE');
+            $this->db->limit( $page_size, $arrCondition['page_number'] );
+        }
+        
+        if(sizeof($name_list) > 0){
+            
+            $names_line = '';    
+            foreach($name_list as $obj)
+            {
+                $names_line = $names_line . "order_name = '" . str_replace( "'", "\\'", $obj->order_name ) . "'" . " OR ";
+            }    
+            //remove last 'OR'
+            $names_line = substr($names_line, 0, (strlen($names_line) - 4));
+            $names_line = '(' . $names_line . ')';
+            
+            $where[ $names_line ] = '';
+        }       
+        
+
+        foreach( $where as $key => $val )
+        if( $val == '' )
+            $this->db->where( $key );
+        else
+            $this->db->where( $key, $val );        
+                
+        $this->db->where ( 'fulfillment_status', 'fulfilled');
+        $this->db->where ( 'exported_status', '0');
+        $query = $this->db->get( $this->_tablename );
+        
+        return $query;
+    }
+    
+    public function getOrderNameList($arrCondition)
+    {
         $where = array();
 
         // Build the where clause
@@ -70,51 +130,43 @@ class Order_model extends Master_model
         $prefix_array = $query->result ();
         
         if(sizeof($prefix_array) > 0){
+            
+            $prefix_line = '';    
             foreach($prefix_array as $obj)
-                $or_where["sku LIKE '%" . str_replace( "'", "\\'", $obj->prefix ) . "%'"] = '';  
+            {
+                $prefix_line = $prefix_line . "sku LIKE '" . str_replace( "'", "\\'", $obj->prefix ) . "%'" . " OR ";
+            }    
+            //remove last 'OR'
+            $prefix_line = substr($prefix_line, 0, (strlen($prefix_line) - 4));
+            $prefix_line = '(' . $prefix_line . ')';
+            
+            $where[ $prefix_line ] = '';
         }
-        
-        //var_dump($or_where);exit;
-        
-        // Get the count of records
-        foreach( $where as $key => $val )
-        if( $val == '' )
-            $this->db->where( $key );
-        else
-            $this->db->where( $key, $val );
-
-        foreach( $or_where as $key => $val )
-        if( $val == '' )
-            $this->db->or_where( $key );
-        else
-            $this->db->or_where( $key, $val );
-        
-        $query = $this->db->get( $this->_tablename);
-        $this->_total_count = $query->num_rows();
         
         // Select fields
-        $select = !empty( $arrCondition['is_all'] ) ? '*' : "id, order_id, order_name, created_at, customer_name, amount, fulfillment_status, num_products, country, product_name, financial_status, sku";
-        $this->db->select( $select );
-        
-        // Sort
-        if( isset( $arrCondition['sort'] ) ) $this->db->order_by( $arrCondition['sort'] );
-        $this->db->order_by( 'created_at', 'DESC' );
-
-        // Limit
-        if( isset( $arrCondition['page_number'] ) )
-        {
-            $page_size = isset( $arrCondition['page_size'] ) ? $arrCondition['page_size'] : $this->config->item('PAGE_SIZE');
-            $this->db->limit( $page_size, $arrCondition['page_number'] );
-        }
+        $this->db->distinct();
+        $select = "order_name";
+        $this->db->select( $select );  
 
         foreach( $where as $key => $val )
         if( $val == '' )
             $this->db->where( $key );
         else
-            $this->db->where( $key, $val );
+            $this->db->where( $key, $val );     
+        
+        $this->db->where ( 'fulfillment_status', 'fulfilled');
+        $this->db->where ( 'exported_status', '0');
         $query = $this->db->get( $this->_tablename );
         
-        return $query;
+        return $query->result();        
+    }
+    
+    public function setExported($result)
+    {
+        foreach($result as $line){
+            $this->db->where('order_id', $line->order_id);
+            $this->db->update( $this->_tablename, array('exported_status' => '1'));        
+        }
     }
     
     public function getFileList()
@@ -171,37 +223,45 @@ class Order_model extends Master_model
     {
         // Check the order is exist already
         $query = parent::getList('order_id = \'' . $order->id . '\'' );
-        if( $query->num_rows() > 0 ) return false;
-        
-        $customer_name = '';
-        if( isset( $order->customer)) $customer_name = $order->customer->first_name . ' ' . $order->customer->last_name;
-        
-        $country = '';
-        if( isset($order->shipping_address->country_code)) $country = $order->shipping_address->country_code;
-        
-        // Get the number of map products
-        foreach( $order->line_items as $line_item )
-        {
-            // Insert data
-            $data = array(
-                'order_id' => $line_item->id,
-                'customer_name' => $customer_name,
-                'product_name' => $line_item->name,
-                'order_name' => $order->name,
-                'created_at' => date( $this->config->item('CONST_DATE_FORMAT'), strtotime( $order->created_at )) ,
-                'amount' => $line_item->price,
-                'country' => $country,
-                'num_products' => $line_item->quantity,
-                'fulfillment_status' => empty($line_item->fulfillment_status) ? '' :  $line_item->fulfillment_status,
-                'data' => base64_encode( json_encode( $line_item ) ),
-                'financial_status' => empty($order->financial_status) ? '' :  $order->financial_status,
-                'sku' => $line_item->sku
-            );
-
-            parent::add( $data );
+        if( $query->num_rows() > 0 ) {
+            return false;
         }
-        
-        return true;
+        else{
+            $customer_name = '';
+            if( isset( $order->customer)) $customer_name = $order->customer->first_name . ' ' . $order->customer->last_name;
+
+            $country = '';
+            if( isset($order->shipping_address->country_code)) $country = $order->shipping_address->country_code;
+
+            // Get the number of map products
+            foreach( $order->line_items as $line_item )
+            {
+                // Insert data
+                $data = array(
+                    'order_id' => $line_item->id,
+                    'customer_name' => $customer_name,
+                    'email' => $order->email,
+                    'product_name' => $line_item->name,
+                    'order_name' => $order->name,
+                    'created_at' =>  str_replace('T', ' ', $order->created_at) ,
+                    'amount' => $line_item->price,
+                    'country' => $country,
+                    'num_products' => $line_item->quantity,
+                    'fulfillment_status' => empty($line_item->fulfillment_status) ? '' :  $line_item->fulfillment_status,
+                    'data' => base64_encode( json_encode( $line_item ) ),
+                    'financial_status' => empty($order->financial_status) ? '' :  $order->financial_status,
+                    'sku' => $line_item->sku,
+                    'exported_status' => 0
+                );
+                
+                $query = parent::getList('order_id = \'' . $line_item->id . '\'' );
+                if($query->num_rows() == 0){
+                    parent::add( $data );
+                }
+            }
+
+            return true;
+        }
     }    
     
     /**

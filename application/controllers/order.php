@@ -73,7 +73,7 @@ class Order extends MY_Controller {
         
     $this->Order_model->rewriteParam($this->_default_store);
     $data['query'] =  $this->Order_model->getList( $arrCondition );
-    $data['total_count'] = $this->Order_model->getTotalCount();
+    $data['total_count'] = sizeof($data['query']->result());//$this->Order_model->getTotalCount();
     $data['page'] = $page;  
       
       //var_dump($data['query']);exit;
@@ -110,18 +110,22 @@ class Order extends MY_Controller {
     
     // Get the lastest day
     $this->Order_model->rewriteParam( $shop );
-    $last_day = $this->Order_model->getLastOrderDate();   
-    
+    $last_day = $this->Order_model->getLastOrderDate(); 
+      
+    $last_day = str_replace(' ', 'T', $last_day); 
+      
     $param = 'status=any&limit=250';
-    if( $last_day != '' ) $param .= '&processed_at_min=' . ( urlencode( $last_day ) );
+    if( $last_day != '' ) $param .= '&processed_at_min=' . $last_day ;
     $action = 'orders.json?' . $param;
       
     // Retrive Data from Shop
     $orderInfo = $this->Shopify_model->accessAPI( $action );
     
-    foreach( $orderInfo->orders as $order )
-    {
-      $this->Process_model->order_create( $order, $this->_arrStoreList[$shop] );
+    if($orderInfo != null){
+        foreach( $orderInfo->orders as $order )
+        {
+          $this->Process_model->order_create( $order, $this->_arrStoreList[$shop] );
+        }
     }
     
     echo 'success';
