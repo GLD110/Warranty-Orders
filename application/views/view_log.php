@@ -59,8 +59,8 @@ $summary = 'Showing ' . ( $page + 1 ) . ' to ' . ( $page + $sel_page_size > $tot
               <label>Type</label>&nbsp;:&nbsp;
               <?PHP echo form_dropdown('sel_type', array( 'ALL' => 'ALL', 'Webhook' => 'Webhook', 'CronJob' => 'CronJob' ), $sel_type, 'id="sel_type" class="form-control input-group-sm"' ); ?>
               &nbsp;&nbsp;
-              <label>Action</label>&nbsp;:&nbsp;
-              <input type = 'text' class="form-control input-group-sm" id = 'sel_action' name = 'sel_action' value = "<?PHP echo $sel_action; ?>" style = "width:150px;" >
+              <label>Input</label>&nbsp;:&nbsp;
+              <input type = 'text' class="form-control input-group-sm" id = 'sel_input' name = 'sel_input' value = "<?PHP echo $sel_input; ?>" style = "width:150px;" >
               &nbsp;&nbsp;&nbsp;
               <label>Page Size</label>&nbsp;:&nbsp;
               <?PHP echo form_dropdown('sel_page_size', array( 30 => 30, 50 => 50, 70 => 70, 100 => 100 ), $sel_page_size, 'id="sel_page_size" class="form-control input-group-sm"' ); ?>

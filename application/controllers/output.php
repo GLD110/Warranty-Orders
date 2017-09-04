@@ -109,12 +109,12 @@ class Output extends MY_Controller {
         // Open temp file pointer
         if (!$fp = fopen($csv_filename, 'w+')) return FALSE;
 
-        fputcsv($fp, array('No', 'Order ID', 'Product Name', 'Customer', 'E-Mail', 'Total', 'Products', 'Country', 'Fulfillment Status', 'Checkout Date', 'Financial Status', 'SKU'));
+        fputcsv($fp, array('No', 'Order Number', 'Product Name', 'Customer', 'E-Mail', 'Total', 'Products', 'Country', 'Fulfillment Status', 'Checkout Date', 'Financial Status', 'SKU'));
 
         // Loop data and write to file pointer
         $i = 1;
         foreach($data as $line){
-            $row = array($i, $line->order_id, $line->product_name, $line->customer_name, $line->email, $line->amount, $line->fulfillment_status, $line->num_products, $line->country, $line->created_at, $line->financial_status, $line->sku);
+            $row = array($i, $line->order_name, $line->product_name, $line->customer_name, $line->email, $line->amount, $line->fulfillment_status, $line->num_products, $line->country, $line->created_at, $line->financial_status, $line->sku);
             
             fputcsv($fp, $row);
             $i++;

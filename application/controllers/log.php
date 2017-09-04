@@ -10,7 +10,7 @@ class Log extends MY_Controller {
     // Define the search values
     $this->_searchConf  = array(
       'type' => 'ALL',
-      'action' => '',
+      'input' => '',
       'page_size' => $this->config->item('PAGE_SIZE'),
       'sort_field' => 'log_date',
       'sort_direction' => 'DESC',
@@ -34,7 +34,7 @@ class Log extends MY_Controller {
     
     $arrCondition =  array(
       'type' => $this->_searchVal['type'],
-      'action' => $this->_searchVal['action'],
+      'input' => $this->_searchVal['input'],
       'page_number' => $page,
       'page_size' => $this->_searchVal['page_size'],              
       'sort' => $this->_searchVal['sort_field'] . ' ' . $this->_searchVal['sort_direction'],

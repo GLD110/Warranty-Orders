@@ -46,6 +46,9 @@ class Order extends MY_Controller {
   }
   
   public function manage( $page =  0 ){
+      
+      //echo 123456789;
+    header( "HTTPS/1.1 200 OK" );exit();
             
     $this->_searchVal['shop'] = trim( $this->_searchVal['shop'], 'http://' );
     $this->_searchVal['shop'] = trim( $this->_searchVal['shop'], 'https://' );

@@ -19,7 +19,8 @@ class Log_model extends Master_model
 
         // Build the where clause
         if( !empty( $arrCondition['type'] ) && $arrCondition['type'] != 'ALL' ) $where['type'] = $arrCondition['type'];
-        if( !empty( $arrCondition['action'] ) ) $where['action'] = $arrCondition['action'];
+        //if( !empty( $arrCondition['action'] ) ) $where['action'] = $arrCondition['action'];
+        if( !empty( $arrCondition['input'] ) ) $where["input LIKE '%" . str_replace( "'", "\\'", $arrCondition['input'] ) . "%'"] = '';
         
         // Get the count of records
         foreach( $where as $key => $val )
